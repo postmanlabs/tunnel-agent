@@ -95,7 +95,12 @@ TunnelingAgent.prototype.addRequest = function addRequest(req, options) {
 TunnelingAgent.prototype.createConnection = function createConnection(pending) {
   var self = this
 
-  self.createSocket(pending, function(socket) {
+  self.createSocket(pending, function(err, socket) {
+    if (err) {
+      pending.request.emit('error', err)
+      return
+    }
+
     socket.on('free', onFree)
     socket.on('close', onCloseOrRemove)
     socket.on('agentRemove', onCloseOrRemove)
@@ -160,13 +165,13 @@ TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
       assert.equal(head.length, 0)
       debug('tunneling connection has established')
       self.sockets[self.sockets.indexOf(placeholder)] = socket
-      cb(socket)
+      cb(null, socket)
     } else {
       debug('tunneling socket could not be established, statusCode=%d', res.statusCode)
       var error = new Error('tunneling socket could not be established, ' + 'statusCode=' + res.statusCode)
       error.code = 'ECONNRESET'
-      options.request.emit('error', error)
       self.removeSocket(placeholder)
+      cb(error)
     }
   }
 
@@ -197,15 +202,29 @@ TunnelingAgent.prototype.removeSocket = function removeSocket(socket) {
 
 function createSecureSocket(options, cb) {
   var self = this
-  TunnelingAgent.prototype.createSocket.call(self, options, function(socket) {
-    // 0 is dummy port for v0.6
-    var secureSocket = tls.connect(0, mergeOptions({}, self.options,
-      { servername: options.host
-      , socket: socket
-      }
-    ))
+  TunnelingAgent.prototype.createSocket.call(self, options, function(err, socket) {
+    if (err) {
+      return cb(err)
+    }
+
+    var secureSocket
+
+    try {
+      // 0 is dummy port for v0.6
+      secureSocket = tls.connect(0, mergeOptions({}, self.options,
+        { servername: options.host
+        , socket: socket
+        }
+      ))
+    }
+    catch (error) {
+      self.removeSocket(socket)
+      socket.destroy()
+      return cb(error)
+    }
+
     self.sockets[self.sockets.indexOf(socket)] = secureSocket
-    cb(secureSocket)
+    cb(null, secureSocket)
   })
 }
 
