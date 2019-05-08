@@ -1,11 +1,11 @@
 {
-  "author": "Mikeal Rogers <mikeal.rogers@gmail.com> (http://www.futurealoof.com)",
-  "name": "tunnel-agent",
+  "author": "Postman Labs <help@getpostman.com>",
+  "name": "@postman/tunnel-agent",
   "license": "Apache-2.0",
-  "description": "HTTP proxy tunneling agent. Formerly part of mikeal/request, now a standalone module.",
+  "description": "HTTP proxy tunneling agent.",
   "version": "0.6.1",
   "repository": {
-    "url": "https://github.com/mikeal/tunnel-agent"
+    "url": "git+https://github.com/postmanlabs/tunnel-agent.git"
   },
   "main": "index.js",
   "files": [
@@ -18,5 +18,12 @@
   "optionalDependencies": {},
   "engines": {
     "node": "*"
+  },
+  "bugs": {
+    "url": "https://github.com/postmanlabs/tunnel-agent/issues"
+  },
+  "homepage": "https://github.com/postmanlabs/tunnel-agent#readme",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
