@@ -129,10 +129,23 @@ TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
     , agent: false
     }
   )
-  if (connectOptions.proxyAuth) {
+
+  // add Proxy-Authorization header for basic auth
+  if (
+    connectOptions.proxyAuth &&
+    connectOptions.proxyAuth.type === 'basic' &&
+    connectOptions.proxyAuth.basic
+  ) {
+    var authHeader = connectOptions.proxyAuth.basic.username || ''
+
+    if (connectOptions.proxyAuth.basic.password) {
+      authHeader += ':' + connectOptions.proxyAuth.basic.password
+    }
+
+    authHeader = 'Basic ' + Buffer.from(authHeader, 'utf8').toString('base64')
+
     connectOptions.headers = connectOptions.headers || {}
-    connectOptions.headers['Proxy-Authorization'] = 'Basic ' +
-        Buffer.from(connectOptions.proxyAuth).toString('base64')
+    connectOptions.headers['Proxy-Authorization'] = authHeader
   }
 
   debug('making CONNECT request')
