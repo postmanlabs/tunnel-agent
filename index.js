@@ -219,12 +219,19 @@ function createSecureSocket(options, cb) {
     }
 
     var secureSocket
+    var secureContext
+
+    if(self.options.extraCA) {
+      secureContext = tls.createSecureContext(self.options)
+      secureContext.context.addCACert(self.options.extraCA)
+    }
 
     try {
       // 0 is dummy port for v0.6
       secureSocket = tls.connect(0, mergeOptions({}, self.options,
         { servername: options.host
         , socket: socket
+        , secureContext: secureContext
         }
       ))
     }
