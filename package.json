@@ -3,7 +3,7 @@
   "name": "@postman/tunnel-agent",
   "license": "Apache-2.0",
   "description": "HTTP proxy tunneling agent.",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "repository": {
     "url": "git+https://github.com/postmanlabs/tunnel-agent.git"
   },
