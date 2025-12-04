@@ -96,8 +96,6 @@ TunnelingAgent.prototype.createConnection = function createConnection(pending) {
 
   self.createSocket(pending, function(err, socket) {
     if (err) {
-      // Treat this as an error still, regardless of the response from the proxy server.
-      // This prevents the socket from being used any further.
       pending.request.emit('error', err)
       return
     }
@@ -183,6 +181,8 @@ TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
       debug('tunneling socket could not be established, statusCode=%d', res.statusCode)
       var error = new Error('tunneling socket could not be established, ' + 'statusCode=' + res.statusCode)
       error.code = 'ECONNRESET'
+      // Treat this as an error still, regardless of the response from the proxy server.
+      // This prevents the socket from being used any further.
       // Since this is not a failure to connect, but rather a response from the proxy server,
       // we need to attach the response to the error for the consumer to pick up.
       error.res = res
