@@ -179,7 +179,7 @@ TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
       // To prevent assertion error for this case we're commenting out the
       // following statement:
       //
-      // assert.equal(head.length, 0)
+      // assert.equal(responseFromProxy.length, 0)
 
       debug('tunneling connection has established')
       self.sockets[self.sockets.indexOf(placeholder)] = socket
