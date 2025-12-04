@@ -163,12 +163,12 @@ TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
     })
   }
 
-  function onConnect(res, socket, head) {
+  function onConnect(res, socket, responseFromProxy) {
     connectReq.removeAllListeners()
     socket.removeAllListeners()
 
     if (res.statusCode === 200) {
-      // @note `head` is the buffer for the response sent by the proxy server
+      // @note `responseFromProxy` is the buffer for the response sent by the proxy server
       // after a successful tunnel is established. The RFC says that any
       // response sent after the successful response headers is to be considered
       // to be sent from the target server. But handling this edge-case requires
@@ -189,7 +189,7 @@ TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
       var error = new Error('tunneling socket could not be established, ' + 'statusCode=' + res.statusCode)
       error.code = 'ECONNRESET'
       error.res = res
-      if (error.res && head) error.res.body = head
+      if (responseFromProxy) error.res.body = responseFromProxy
       self.removeSocket(placeholder)
       cb(error)
     }
