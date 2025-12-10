@@ -156,12 +156,12 @@ TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
     })
   }
 
-  function onConnect(res, socket, head) {
+  function onConnect(res, socket, responseFromProxy) {
     connectReq.removeAllListeners()
     socket.removeAllListeners()
 
     if (res.statusCode === 200) {
-      // @note `head` is the buffer for the response sent by the proxy server
+      // @note `responseFromProxy` is the buffer for the response sent by the proxy server
       // after a successful tunnel is established. The RFC says that any
       // response sent after the successful response headers is to be considered
       // to be sent from the target server. But handling this edge-case requires
@@ -172,7 +172,7 @@ TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
       // To prevent assertion error for this case we're commenting out the
       // following statement:
       //
-      // assert.equal(head.length, 0)
+      // assert.equal(responseFromProxy.length, 0)
 
       debug('tunneling connection has established')
       self.sockets[self.sockets.indexOf(placeholder)] = socket
@@ -181,6 +181,12 @@ TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
       debug('tunneling socket could not be established, statusCode=%d', res.statusCode)
       var error = new Error('tunneling socket could not be established, ' + 'statusCode=' + res.statusCode)
       error.code = 'ECONNRESET'
+      // Treat this as an error still, regardless of the response from the proxy server.
+      // This prevents the socket from being used any further.
+      // Since this is not a failure to connect, but rather a response from the proxy server,
+      // we need to attach the response to the error for the consumer to pick up.
+      error.res = res
+      if (responseFromProxy) error.res.body = responseFromProxy
       self.removeSocket(placeholder)
       cb(error)
     }
