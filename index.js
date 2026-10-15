@@ -93,6 +93,7 @@ TunnelingAgent.prototype.addRequest = function addRequest(req, options) {
 
 TunnelingAgent.prototype.createConnection = function createConnection(pending) {
   var self = this
+  assertHasRequest(pending, 'createConnection')
 
   self.createSocket(pending, function(err, socket) {
     if (err) {
@@ -120,6 +121,7 @@ TunnelingAgent.prototype.createConnection = function createConnection(pending) {
 
 TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
   var self = this
+  assertHasRequest(options, 'createSocket')
   var placeholder = {}
   self.sockets.push(placeholder)
 
@@ -250,6 +252,14 @@ function createSecureSocket(options, cb) {
     self.sockets[self.sockets.indexOf(socket)] = secureSocket
     cb(null, secureSocket)
   })
+}
+
+
+function assertHasRequest(pending, method) {
+  if (!pending || !pending.request) {
+    throw new TypeError('TunnelingAgent.' + method +
+      ' requires an object with a "request" property')
+  }
 }
 
 
